@@ -7,10 +7,18 @@
         "type": "box",
         "layout": "vertical",
         "contents": [
-          {"type": "text", "text": "半導體", "weight": "bold", "size": "lg" },
+          {"type": "text", "text": "台股 科技股", "weight": "bold", "size": "lg" },
           {"type": "button","style": "link","action": { "type": "postback", "label": "台積電 (2330)", "data": "stock 2330 ma" }},
           {"type": "button","style": "link","action": { "type": "postback", "label": "聯電 (2303)", "data": "stock 2303 ma" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "聯發科 (2454)", "data":"stock 2454 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "廣達 (2382)", "data":"stock 2382 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "緯創 (3231)", "data":"stock 3231 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "鴻海 (2371)", "data":"stock 2371 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "仁寶 (2324)", "data":"stock 2324 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "智邦 (2345)", "data":"stock 2345 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "台達電 (2308)", "data":"stock 2308 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "奇鴻 (3017)", "data":"stock 3017 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "雙鴻 (3324)", "data":"stock 3324 ma" }},
           {"type": "button","style": "primary","color": "#00FFF0","action": {"type": "postback", "label": "侯老闆箴言", "data": "Dr_willy_said"}}
         ]
       }
@@ -21,10 +29,130 @@
         "type": "box",
         "layout": "vertical",
         "contents": [
-          {"type": "text", "text": "電子業", "weight": "bold", "size": "lg" },
-          {"type": "button","style": "link","action":{"type": "postback", "label": "鴻海 (2317)", "data": "stock 2317 ma"}},
-          {"type": "button","style": "link","action":{"type": "postback", "label": "廣達 (2382)", "data": "stock 2382 ma" }
-          }
+          {"type": "text", "text": "台股 光通訊概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action": { "type": "postback", "label": "眾達 (4977)", "data": "stock 4977 ma" }},
+          {"type": "button","style": "link","action": { "type": "postback", "label": "華通 (2313)", "data": "stock 2313 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "波若威 (3163)", "data":"stock 3163 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "上詮 (3363)", "data":"stock 3363 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "華星光 (4979)", "data":"stock 4979 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "聯均 (3450)", "data":"stock 3450 ma" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 M7", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "MSFT", "data": "stock MSFT ma"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AMZN", "data": "stock AMZN ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "META", "data": "stock META ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "GOOGL", "data": "stock GOOGL ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AAPL", "data": "stock AAPL ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "TSLA", "data": "stock TSLA ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "NVDA", "data": "stock NVDA ma" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 量子概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "IONQ", "data": "stock IONQ ma"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RGTI", "data": "stock RGTI ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "QBTS", "data": "stock QBTS ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "QUBT", "data": "stock QUBT ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "GOOG", "data": "stock GOOG ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "IBM", "data": "stock IBM ma" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 NTN 概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "LUNR", "data": "stock LUNR ma"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "ASTS", "data": "stock ASTS ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "IRDM", "data": "stock IRDM ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AMZN", "data": "stock AMZN ma" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 無人機概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "ONDS", "data": "stock ONDS ma"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RCAT", "data": "stock RCAT ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AVAV", "data": "stock AVAV ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "UMAC", "data": "stock UMAC ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "ZENA", "data": "stock ZENA ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AIRO", "data": "stock AIRO ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "NOC", "data": "stock NOC ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "LMT", "data": "stock LMT ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "BA", "data": "stock BA ma" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 核能概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "OKLO", "data": "stock OKLO ma"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "NNE", "data": "stock NNE ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "SMR", "data": "stock SMR ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "CCJ", "data": "stock CCJ ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "XEL", "data": "stock XEL ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "UUUU", "data": "stock UUUU ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "LEU", "data": "stock LEU ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "LAC", "data": "stock LAC ma" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 太陽能概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "CSIQ", "data": "stock CSIQ ma"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "FSLR", "data": "stock FSLR ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RUN", "data": "stock RUN ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "SEDG", "data": "stock SEDG ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "ENPH", "data": "stock ENPH ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "NEE", "data": "stock NEE ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "SPWR", "data": "stock SPWR ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RDW", "data": "stock RDW ma" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 其他能源概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RBNE", "data": "stock RBNE ma"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "BE", "data": "stock BE ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "BRZE", "data": "stock BRZE ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "FLCN", "data": "stock FLCN ma" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "PLUG", "data": "stock PLUG ma" }}
         ]
       }
     }

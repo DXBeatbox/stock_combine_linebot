@@ -1,0 +1,160 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "台股 科技股介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action": { "type": "postback", "label": "台積電 (2330)", "data": "gemini 2330" }},
+          {"type": "button","style": "link","action": { "type": "postback", "label": "聯電 (2303)", "data": "gemini 2303" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "聯發科 (2454)", "data":"gemini 2454" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "廣達 (2382)", "data":"gemini 2382" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "緯創 (3231)", "data":"gemini 3231" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "鴻海 (2371)", "data":"gemini 2371" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "仁寶 (2324)", "data":"gemini 2324" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "智邦 (2345)", "data":"gemini 2345" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "台達電 (2308)", "data":"gemini 2308" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "奇鴻 (3017)", "data":"gemini 3017" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "雙鴻 (3324)", "data":"gemini 3324" }}
+          
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "台股 光通訊概念股介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action": { "type": "postback", "label": "眾達 (4977)", "data": "gemini 4977" }},
+          {"type": "button","style": "link","action": { "type": "postback", "label": "華通 (2313)", "data": "gemini 2313" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "波若威 (3163)", "data":"gemini 3163" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "上詮 (3363)", "data":"gemini 3363" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "華星光 (4979)", "data":"gemini 4979" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "聯均 (3450)", "data":"gemini 3450" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 M7 介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "MSFT", "data": "gemini MSFT"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AMZN", "data": "gemini AMZN" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "META", "data": "gemini META" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "GOOGL", "data": "gemini GOOGL" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AAPL", "data": "gemini AAPL" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "TSLA", "data": "gemini TSLA" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "NVDA", "data": "gemini NVDA" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 量子概念股介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "IONQ", "data": "gemini IONQ"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RGTI", "data": "gemini RGTI" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "QBTS", "data": "gemini QBTS" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "QUBT", "data": "gemini QUBT" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "GOOG", "data": "gemini GOOG" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "IBM", "data": "gemini IBM" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 NTN 概念股介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "LUNR", "data": "gemini LUNR"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "ASTS", "data": "gemini ASTS" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "IRDM", "data": "gemini IRDM" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AMZN", "data": "gemini AMZN" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 無人機概念股介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "ONDS", "data": "gemini ONDS"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RCAT", "data": "gemini RCAT" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AVAV", "data": "gemini AVAV" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "UMAC", "data": "gemini UMAC" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "ZENA", "data": "gemini ZENA" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "AIRO", "data": "gemini AIRO" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "NOC", "data": "gemini NOC" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "LMT", "data": "gemini LMT" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "BA", "data": "gemini BA" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 核能概念股介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "OKLO", "data": "gemini OKLO"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "NNE", "data": "gemini NNE" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "SMR", "data": "gemini SMR" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "CCJ", "data": "gemini CCJ" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "XEL", "data": "gemini XEL" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "UUUU", "data": "gemini UUUU" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "LEU", "data": "gemini LEU" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "LAC", "data": "gemini LAC" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 太陽能概念股介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "CSIQ", "data": "gemini CSIQ"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "FSLR", "data": "gemini FSLR" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RUN", "data": "gemini RUN" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "SEDG", "data": "gemini SEDG" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "ENPH", "data": "gemini ENPH" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "NEE", "data": "gemini NEE" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "SPWR", "data": "gemini SPWR" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RDW", "data": "gemini RDW" }}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "美股 其他能源概念股介紹", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "RBNE", "data": "gemini RBNE"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "BE", "data": "gemini BE" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "BRZE", "data": "gemini BRZE" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "FLCN", "data": "gemini FLCN" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "PLUG", "data": "gemini PLUG" }}
+        ]
+      }
+    }
+  ]
+}

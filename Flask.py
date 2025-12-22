@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 import cloudinary
 import cloudinary.uploader
 
-import google.generativeai as genai
+from google import genai
 from serpapi import GoogleSearch
 
 import json
@@ -44,8 +44,8 @@ import json
 app = Flask(__name__)
 
 # 設定 Gemini API 金鑰
-genai.configure(api_key=gemini_key)
-
+# genai.configure(api_key=gemini_key)
+client = genai.Client(api_key=gemini_key)
 
 # 替換成你自己的 Channel Access Token 和 Channel Secret
 line_bot_api = LineBotApi(line_token)
@@ -53,6 +53,9 @@ handler = WebhookHandler(line_secret)
 
 with open("quickTourButton.json", "r", encoding="utf-8") as f:
     quickTourButton = json.load(f)
+
+with open("stock_info.json", "r", encoding="utf-8") as f:
+    stock_info = json.load(f)
 
 # 函式：執行 Google 搜尋
 def google_search(query):
@@ -105,6 +108,10 @@ def handle_message(event):
         case "快速導覽":
             message = FlexSendMessage( alt_text="股票快訊", contents=quickTourButton ) 
             line_bot_api.reply_message(event.reply_token, message)
+        
+        case "個股資訊":
+            message = FlexSendMessage( alt_text="個股資訊", contents=stock_info ) 
+            line_bot_api.reply_message(event.reply_token, message)
 
         case "stock":
             line_bot_api.reply_message(
@@ -120,49 +127,40 @@ def handle_message(event):
             )
             line_bot_api.push_message(user_id, image_message)
             plt.close()
+    
 
         case "gemini":
             response_txt = True
-            model = genai.GenerativeModel('gemini-2.5-flash')
-            text_input = spilt_words[1]
-            if any(keyword in text_input for keyword in ["附上來源"]):
-                # print("偵測到需要搜尋的關鍵字，正在上網查詢...")
-                search_results = google_search(text_input)
+            # model = genai.GenerativeModel('gemini-2.5-flash')
+            # text_input = spilt_words[1]
+            # if any(keyword in text_input for keyword in ["即時", "今年", "這半年", "附上來源"]):
+            #     # print("偵測到需要搜尋的關鍵字，正在上網查詢...")
+            #     search_results = google_search(text_input)
                 
-                # 建立一個包含搜尋結果的提示（Prompt）
-                full_prompt = (
-                    f"以下是一些關於 '{text_input}' 的最新搜尋結果：\n\n"
-                    f"{search_results}\n\n"
-                    f"請根據這些資訊，回答我的問題。"
-                )
-            else:
-                full_prompt = text_input
-            response = model.generate_content(full_prompt+"，字數請幫我濃縮到300字左右，謝謝~")
+            #     # 建立一個包含搜尋結果的提示（Prompt）
+            #     full_prompt = (
+            #         f"以下是一些關於 '{text_input}' 的最新搜尋結果：\n\n"
+            #         f"{search_results}\n\n"
+            #         f"請根據這些資訊，回答我的問題。"
+            #     )
+            # else:
+            #     full_prompt = text_input
+            # response = model.generate_content(full_prompt)
 
-    
-        case "gemini-l":
-            response_txt = True
-            model = genai.GenerativeModel('gemini-2.5-flash')
             text_input = spilt_words[1]
-            if any(keyword in text_input for keyword in ["即時", "今年", "這半年", "附上來源"]):
-                # print("偵測到需要搜尋的關鍵字，正在上網查詢...")
-                search_results = google_search(text_input)
-                
-                # 建立一個包含搜尋結果的提示（Prompt）
-                full_prompt = (
-                    f"以下是一些關於 '{text_input}' 的最新搜尋結果：\n\n"
-                    f"{search_results}\n\n"
-                    f"請根據這些資訊，回答我的問題。"
-                )
-            else:
-                full_prompt = text_input
-            response = model.generate_content(full_prompt)
+            
+            response = client.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=text_input
+            )
+
+            # print(response.text)
     
-        case "gemini-pro":
-            response_txt = True
-            model = genai.GenerativeModel('gemini-2.5-pro')
-            chat = model.start_chat(history=[])
-            response = chat.send_message(spilt_words[1]+"，並附上來源，謝謝~")
+        # case "gemini-pro":
+        #     response_txt = True
+        #     model = genai.GenerativeModel('gemini-2.5-pro')
+        #     chat = model.start_chat(history=[])
+        #     response = chat.send_message(spilt_words[1]+"，並附上來源，謝謝~")
 
     if response_txt :
         reply = TextSendMessage(response.text)
@@ -195,6 +193,7 @@ def handle_postback(event):
                 preview_image_url=Dr_willy_said_url
             )
             line_bot_api.push_message(user_id, image_message)
+
         case "stock":
             line_bot_api.reply_message(
                 event.reply_token,
@@ -209,6 +208,42 @@ def handle_postback(event):
             )
             line_bot_api.push_message(user_id, image_message)
             plt.close()
+
+        case "gemini":
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=f"請稍後喔~ 小幫手還在打字中，{spilt_words[1]} 資訊好多，麻煩耐心等候 :D")
+            )
+            text_buf = spilt_words[1]
+            stock_area = classify_stock_symbol(spilt_words[1])
+            if stock_area=="TWstock":
+                text_input = "請使用 Google 搜尋最新資料，介紹台股編號" + text_buf + "這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，並不要有*字號，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
+            elif stock_area=="USstock":
+                text_input = "請使用 Google 搜尋最新資料，介紹美股" + text_buf + "這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，並不要有*字號，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
+            
+            # response = client.models.generate_content(
+            #     # model="gemini-3-flash-preview",
+            #     model="gemini-2.5-flash",
+            #     contents=text_input
+            # )
+
+            models = ["gemini-3-flash", "gemini-2.5-pro", "gemini-2.5-flash"]
+            reply_text = None
+            for model_name in models:
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=text_input
+                    )
+                    reply_text = response.text
+                    break  # 成功就跳出迴圈
+                except Exception as e:
+                    continue  # 換下一個模型
+            if not reply_text:
+                reply_text = "目前所有模型都無法使用，請稍後再試或升級方案。"
+
+            # line_bot_api.reply_message(event.reply_token, reply)
+            line_bot_api.push_message( to=user_id,messages=[TextSendMessage(text=reply_text)] )
 
 
 def auto_update_WebhookURL(url_add_Callback):
@@ -239,16 +274,26 @@ def initial_upload_pic():
     # 取得公開網址
     return response['secure_url']
 
+
+def classify_stock_symbol(symbol: str) -> str: 
+    if symbol.isdigit(): return "TWstock" 
+    elif symbol.isalpha(): return "USstock" 
+    else: return "Unknow"
+
+
+
 def plot_stock_chart(spilt_words):
     # Get current timing
     today = datetime.date.today()
 
-    # plt.rcParams["font.family"]=["Microsoft JhengHei"]   # 中文字型
-    # plt.title(spilt_words[1] + ' 近 31 日股價')
-
-
     date_80_days_ago = today - datetime.timedelta(days=110)
-    data = yf.download(spilt_words[1]+".TW", start=date_80_days_ago, end=today)
+
+    stock_area = classify_stock_symbol(spilt_words[1])
+
+    if stock_area=="TWstock":
+        data = yf.download(spilt_words[1]+".TW", start=date_80_days_ago, end=today)
+    elif stock_area=="USstock":
+        data = yf.download(spilt_words[1], start=date_80_days_ago, end=today)
 
     # 建立兩個子圖，共用X軸
     fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [3, 1]}, sharex=True)        
