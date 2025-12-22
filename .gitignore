@@ -11,4 +11,5 @@ test_code/
 # 圖片
 *.png
 
+# drawio disable
 *.drawio
