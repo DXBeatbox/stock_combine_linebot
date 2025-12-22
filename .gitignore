@@ -1,0 +1,14 @@
+# API KEY
+.env
+
+# 臨時檔案
+previous_code/
+test_code/
+
+# bak file
+*.bak
+
+# 圖片
+*.png
+
+*.drawio

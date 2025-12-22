@@ -1,0 +1,32 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "半導體", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action": { "type": "postback", "label": "台積電 (2330)", "data": "stock 2330 ma" }},
+          {"type": "button","style": "link","action": { "type": "postback", "label": "聯電 (2303)", "data": "stock 2303 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "聯發科 (2454)", "data":"stock 2454 ma" }},
+          {"type": "button","style": "primary","color": "#00FFF0","action": {"type": "postback", "label": "侯老闆箴言", "data": "Dr_willy_said"}}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "電子業", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action":{"type": "postback", "label": "鴻海 (2317)", "data": "stock 2317 ma"}},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "廣達 (2382)", "data": "stock 2382 ma" }
+          }
+        ]
+      }
+    }
+  ]
+}
