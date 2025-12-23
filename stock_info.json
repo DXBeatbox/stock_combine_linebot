@@ -152,6 +152,7 @@
           {"type": "button","style": "link","action":{"type": "postback", "label": "BE", "data": "gemini BE" }},
           {"type": "button","style": "link","action":{"type": "postback", "label": "BRZE", "data": "gemini BRZE" }},
           {"type": "button","style": "link","action":{"type": "postback", "label": "FLCN", "data": "gemini FLCN" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "COST", "data": "gemini COST" }},
           {"type": "button","style": "link","action":{"type": "postback", "label": "PLUG", "data": "gemini PLUG" }}
         ]
       }
