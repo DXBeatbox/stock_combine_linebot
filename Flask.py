@@ -31,7 +31,8 @@ import datetime
 import yfinance as yf 
 import matplotlib
 matplotlib.use("Agg")  # 設定為非GUI backend
-matplotlib.rcParams["font.family"] = ["Arial Unicode MS"] # 設定全域中文字型
+# matplotlib.rcParams["font.family"] = ["Arial Unicode MS"] # 設定全域中文字型
+matplotlib.rcParams["font.family"] = ['Noto Sans TC'] # 設定全域中文字型
 import matplotlib.pyplot as plt
 import cloudinary
 import cloudinary.uploader
@@ -358,7 +359,7 @@ def plot_stock_chart(spilt_words):
 
     # 調整子圖間距和整體標題
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    fig.suptitle(spilt_words[1]+'股票價格與成交量對照圖', fontsize=16)
+    fig.suptitle(spilt_words[1]+' Chart of Stock Prices and Trading Volumes', fontsize=16)
 
     savefig_name = spilt_words[1] + '.png'
     plt.savefig(savefig_name) # 將圖存成 png 檔
