@@ -216,10 +216,24 @@ def handle_postback(event):
             )
             text_buf = spilt_words[1]
             stock_area = classify_stock_symbol(spilt_words[1])
+
+            
             if stock_area=="TWstock":
-                text_input = "請使用 Google 搜尋最新資料，介紹台股編號" + text_buf + "這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，並不要有*字號，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
+                search_text = "台股代號 " + text_buf + " 做什麼的"
+                search_results = google_search(search_text)
+                # 建立一個包含搜尋結果的提示（Prompt）
+                full_prompt = (
+                    f"以下是關於 '{search_text}' 的最新搜尋結果：\n\n"
+                    f"{search_results}\n\n"
+                    f"請根據你自己的內部資訊以及搜尋的這些資訊介紹"
+                )
+            # elif stock_area=="USstock":
+            #     search_text = "美股代號 " + text_buf + " 做什麼的"
+
+            if stock_area=="TWstock":
+                text_input =  full_prompt + "台股代號" + text_buf + "這間公司在做什麼、主要產品、核心技術與市場定位，及適不適合再繼續投資。。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，並不要有*字號，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
             elif stock_area=="USstock":
-                text_input = "請使用 Google 搜尋最新資料，介紹美股" + text_buf + "這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，並不要有*字號，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
+                text_input =  "請使用 Google 搜尋最新資料，介紹美股" + text_buf + "這間公司在做什麼、主要產品、核心技術與市場定位，及適不適合再繼續投資。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，並不要有*字號，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
             
             # response = client.models.generate_content(
             #     # model="gemini-3-flash-preview",
@@ -227,15 +241,16 @@ def handle_postback(event):
             #     contents=text_input
             # )
 
-            models = ["gemini-3-flash", "gemini-2.5-pro", "gemini-2.5-flash"]
+            models = ["gemini-3-flash-preview", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite-preview-09-2025", "gemini-2.5-flash-lite"]
+            # models = ["gemini-2.5-flash"]
             reply_text = None
             for model_name in models:
                 try:
                     response = client.models.generate_content(
                         model=model_name,
-                        contents=text_input
+                        contents="你是犀利高冷的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n" + text_input
                     )
-                    reply_text = response.text
+                    reply_text = response.text.replace("*","")
                     break  # 成功就跳出迴圈
                 except Exception as e:
                     continue  # 換下一個模型
