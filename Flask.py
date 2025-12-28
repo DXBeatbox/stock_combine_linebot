@@ -31,7 +31,7 @@ import datetime
 import yfinance as yf 
 import matplotlib
 matplotlib.use("Agg")  # 設定為非GUI backend
-matplotlib.rcParams["font.family"] = ["Noto Sans CJK TC"] # 設定全域中文字型
+# matplotlib.rcParams["font.family"] = ["Noto Sans CJK TC"] # 設定全域中文字型
 import matplotlib.pyplot as plt
 import cloudinary
 import cloudinary.uploader
@@ -56,6 +56,9 @@ with open("quickTourButton.json", "r", encoding="utf-8") as f:
 
 with open("stock_info.json", "r", encoding="utf-8") as f:
     stock_info = json.load(f)
+
+# AI Model list
+models = ["gemini-3-flash-preview", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite-preview-09-2025", "gemini-2.5-flash-lite"]
 
 # 函式：執行 Google 搜尋
 def google_search(query):
@@ -114,53 +117,35 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, message)
 
         case "stock":
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
-            )
+            # line_bot_api.reply_message(
+            #     event.reply_token,
+            #     TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
+            # )
             #繪製均線圖並回傳網址
-            image_url = plot_stock_chart(spilt_words)
+            image_url, reply_text = plot_stock_chart(spilt_words)
 
             image_message = ImageSendMessage(
                 original_content_url=image_url,
                 preview_image_url=image_url
             )
-            line_bot_api.push_message(user_id, image_message)
+            text_message = TextSendMessage(text=reply_text)
+
+            line_bot_api.reply_message(
+                event.reply_token,
+                [image_message, text_message]
+            )
+            # line_bot_api.push_message(user_id, image_message)
             plt.close()
     
 
         case "gemini":
             response_txt = True
-            # model = genai.GenerativeModel('gemini-2.5-flash')
-            # text_input = spilt_words[1]
-            # if any(keyword in text_input for keyword in ["即時", "今年", "這半年", "附上來源"]):
-            #     # print("偵測到需要搜尋的關鍵字，正在上網查詢...")
-            #     search_results = google_search(text_input)
-                
-            #     # 建立一個包含搜尋結果的提示（Prompt）
-            #     full_prompt = (
-            #         f"以下是一些關於 '{text_input}' 的最新搜尋結果：\n\n"
-            #         f"{search_results}\n\n"
-            #         f"請根據這些資訊，回答我的問題。"
-            #     )
-            # else:
-            #     full_prompt = text_input
-            # response = model.generate_content(full_prompt)
-
             text_input = spilt_words[1]
-            
             response = client.models.generate_content(
                 model="gemini-3-flash-preview",
                 contents=text_input
             )
-
-            # print(response.text)
-    
-        # case "gemini-pro":
-        #     response_txt = True
-        #     model = genai.GenerativeModel('gemini-2.5-pro')
-        #     chat = model.start_chat(history=[])
-        #     response = chat.send_message(spilt_words[1]+"，並附上來源，謝謝~")
+            response = response.text.replace("*","")
 
     if response_txt :
         reply = TextSendMessage(response.text)
@@ -192,28 +177,38 @@ def handle_postback(event):
                 original_content_url=Dr_willy_said_url,
                 preview_image_url=Dr_willy_said_url
             )
-            line_bot_api.push_message(user_id, image_message)
-
-        case "stock":
+            # line_bot_api.push_message(user_id, image_message)
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
+                image_message
             )
-            #繪製均線圖並回傳網址
-            image_url = plot_stock_chart(spilt_words)
+
+        case "stock":
+            # line_bot_api.reply_message(
+            #     event.reply_token,
+            #     TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
+            # )
+            #繪製均線圖並回傳網址與AI建議
+            image_url, reply_text = plot_stock_chart(spilt_words)
 
             image_message = ImageSendMessage(
                 original_content_url=image_url,
                 preview_image_url=image_url
             )
-            line_bot_api.push_message(user_id, image_message)
+
+            text_message = TextSendMessage(text=reply_text)
+            # line_bot_api.push_message(user_id, image_message)
+            line_bot_api.reply_message(
+                event.reply_token,
+                [image_message, text_message]
+            )
             plt.close()
 
         case "gemini":
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=f"請稍後喔~ 小幫手還在打字中，{spilt_words[1]} 資訊好多，麻煩耐心等候 :D")
-            )
+            # line_bot_api.reply_message(
+            #     event.reply_token,
+            #     TextSendMessage(text=f"請稍後喔~ 小幫手還在打字中，{spilt_words[1]} 資訊好多，麻煩耐心等候 :D")
+            # )
             text_buf = spilt_words[1]
             stock_area = classify_stock_symbol(spilt_words[1])
 
@@ -227,22 +222,14 @@ def handle_postback(event):
                     f"{search_results}\n\n"
                     f"請根據你自己的內部資訊以及搜尋的這些資訊介紹"
                 )
-            # elif stock_area=="USstock":
-            #     search_text = "美股代號 " + text_buf + " 做什麼的"
 
             if stock_area=="TWstock":
                 text_input =  full_prompt + "台股代號 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
             elif stock_area=="USstock":
                 text_input =  "請使用 Google 搜尋最新資料，介紹美股 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
-            
-            # response = client.models.generate_content(
-            #     # model="gemini-3-flash-preview",
-            #     model="gemini-2.5-flash",
-            #     contents=text_input
-            # )
 
             models = ["gemini-3-flash-preview", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite-preview-09-2025", "gemini-2.5-flash-lite"]
-            # models = ["gemini-2.5-flash"]
+
             reply_text = None
             for model_name in models:
                 try:
@@ -257,8 +244,11 @@ def handle_postback(event):
             if not reply_text:
                 reply_text = "目前所有模型都無法使用，請稍後再試或升級方案。"
 
-            # line_bot_api.reply_message(event.reply_token, reply)
-            line_bot_api.push_message( to=user_id,messages=[TextSendMessage(text=reply_text)] )
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=reply_text)
+            )
+            # line_bot_api.push_message( to=user_id,messages=[TextSendMessage(text=reply_text)] )
 
 
 def auto_update_WebhookURL(url_add_Callback):
@@ -285,7 +275,7 @@ def initial_upload_pic():
         api_secret = cloudnary_api_secret
     ) 
     # 上傳圖片
-    response = cloudinary.uploader.upload("Dr_willy_said.png")
+    response = cloudinary.uploader.upload("./pic/Dr_willy_said.png")
     # 取得公開網址
     return response['secure_url']
 
@@ -360,9 +350,30 @@ def plot_stock_chart(spilt_words):
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     fig.suptitle(spilt_words[1]+' Chart of Stock Prices and Trading Volumes', fontsize=16)
 
-    savefig_name = spilt_words[1] + '.png'
+    savefig_name = './pic/' + spilt_words[1] + '.png'
     plt.savefig(savefig_name) # 將圖存成 png 檔
     plt.close()
+
+    reply_text = ""
+    for model_name in models:
+        try:
+            # 呼叫模型，傳入文字 + 圖片
+            response = client.models.generate_content(
+                model=model_name,
+                contents=[
+                    {"role": "user", "parts": [
+                        {"text": "你是冷靜果決的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n請幫我分析這張股票走勢圖\n，淺灰色的是布林通道，下面是交易量，其餘你自己看圖標"},
+                        {"inline_data": {
+                            "mime_type": "image/png",
+                            "data": open(savefig_name, "rb").read()
+                        }}
+                    ]}
+                ]
+            )
+            reply_text = response.text.replace("*","")
+            break  # 成功就跳出迴圈
+        except Exception as e:
+            continue  # 換下一個模型
 
     # 初始化 Cloudinary
     cloudinary.config(
@@ -373,8 +384,8 @@ def plot_stock_chart(spilt_words):
 
     # 上傳圖片
     response = cloudinary.uploader.upload(savefig_name)
-    # 取得公開網址
-    return response['secure_url']
+    # 回傳公開網址和AI建議文字
+    return response['secure_url'], reply_text
     
 
 # 啟動 Flask Server

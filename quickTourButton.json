@@ -11,15 +11,25 @@
           {"type": "button","style": "link","action": { "type": "postback", "label": "台積電 (2330)", "data": "stock 2330 ma" }},
           {"type": "button","style": "link","action": { "type": "postback", "label": "聯電 (2303)", "data": "stock 2303 ma" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "聯發科 (2454)", "data":"stock 2454 ma" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "廣達 (2382)", "data":"stock 2382 ma" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "緯創 (3231)", "data":"stock 3231 ma" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "鴻海 (2371)", "data":"stock 2371 ma" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "仁寶 (2324)", "data":"stock 2324 ma" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "智邦 (2345)", "data":"stock 2345 ma" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "台達電 (2308)", "data":"stock 2308 ma" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "奇鴻 (3017)", "data":"stock 3017 ma" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "雙鴻 (3324)", "data":"stock 3324 ma" }},
           {"type": "button","style": "primary","color": "#00FFF0","action": {"type": "postback", "label": "侯老闆箴言", "data": "Dr_willy_said"}}
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "台股 伺服器概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action": {"type": "postback", "label": "廣達 (2382)", "data":"stock 2382 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "緯創 (3231)", "data":"stock 3231 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "鴻海 (2371)", "data":"stock 2371 ma" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "仁寶 (2324)", "data":"stock 2324 ma" }}
         ]
       }
     },

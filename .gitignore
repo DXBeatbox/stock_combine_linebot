@@ -4,6 +4,7 @@
 # 臨時檔案
 previous_code/
 test_code/
+pic/
 
 # bak file
 *.bak

@@ -11,15 +11,25 @@
           {"type": "button","style": "link","action": { "type": "postback", "label": "台積電 (2330)", "data": "gemini 2330" }},
           {"type": "button","style": "link","action": { "type": "postback", "label": "聯電 (2303)", "data": "gemini 2303" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "聯發科 (2454)", "data":"gemini 2454" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "廣達 (2382)", "data":"gemini 2382" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "緯創 (3231)", "data":"gemini 3231" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "鴻海 (2371)", "data":"gemini 2371" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "仁寶 (2324)", "data":"gemini 2324" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "智邦 (2345)", "data":"gemini 2345" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "台達電 (2308)", "data":"gemini 2308" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "奇鴻 (3017)", "data":"gemini 3017" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "雙鴻 (3324)", "data":"gemini 3324" }}
           
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {"type": "text", "text": "台股 伺服器概念股", "weight": "bold", "size": "lg" },
+          {"type": "button","style": "link","action": {"type": "postback", "label": "廣達 (2382)", "data":"gemini 2382" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "緯創 (3231)", "data":"gemini 3231" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "鴻海 (2371)", "data":"gemini 2371" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "仁寶 (2324)", "data":"gemini 2324" }}
         ]
       }
     },
