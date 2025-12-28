@@ -31,8 +31,7 @@ import datetime
 import yfinance as yf 
 import matplotlib
 matplotlib.use("Agg")  # 設定為非GUI backend
-# matplotlib.rcParams["font.family"] = ["Arial Unicode MS"] # 設定全域中文字型
-matplotlib.rcParams["font.family"] = ['Noto Sans TC'] # 設定全域中文字型
+matplotlib.rcParams["font.family"] = ["Noto Sans CJK TC"] # 設定全域中文字型
 import matplotlib.pyplot as plt
 import cloudinary
 import cloudinary.uploader
@@ -232,9 +231,9 @@ def handle_postback(event):
             #     search_text = "美股代號 " + text_buf + " 做什麼的"
 
             if stock_area=="TWstock":
-                text_input =  full_prompt + "台股代號" + text_buf + "這間公司在做什麼、主要產品、核心技術與市場定位，及適不適合再繼續投資。。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，並不要有*字號，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
+                text_input =  full_prompt + "台股代號 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
             elif stock_area=="USstock":
-                text_input =  "請使用 Google 搜尋最新資料，介紹美股" + text_buf + "這間公司在做什麼、主要產品、核心技術與市場定位，及適不適合再繼續投資。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，並不要有*字號，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
+                text_input =  "請使用 Google 搜尋最新資料，介紹美股 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
             
             # response = client.models.generate_content(
             #     # model="gemini-3-flash-preview",
@@ -249,7 +248,7 @@ def handle_postback(event):
                 try:
                     response = client.models.generate_content(
                         model=model_name,
-                        contents="你是犀利高冷的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n" + text_input
+                        contents="你是冷靜果決的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n" + text_input
                     )
                     reply_text = response.text.replace("*","")
                     break  # 成功就跳出迴圈
