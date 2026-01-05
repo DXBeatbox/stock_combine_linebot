@@ -228,8 +228,7 @@ def handle_postback(event):
             elif stock_area=="USstock":
                 text_input =  "請使用 Google 搜尋最新資料，介紹美股 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
 
-            models = ["gemini-3-flash-preview", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite-preview-09-2025", "gemini-2.5-flash-lite"]
-
+            
             reply_text = None
             for model_name in models:
                 try:
@@ -291,14 +290,14 @@ def plot_stock_chart(spilt_words):
     # Get current timing
     today = datetime.date.today()
 
-    date_80_days_ago = today - datetime.timedelta(days=110)
-
+    date_110_days_ago = today - datetime.timedelta(days=110)
+    tomorrow = today + datetime.timedelta(days=1)
     stock_area = classify_stock_symbol(spilt_words[1])
 
     if stock_area=="TWstock":
-        data = yf.download(spilt_words[1]+".TW", start=date_80_days_ago, end=today)
+        data = yf.download(spilt_words[1]+".TW", start=date_110_days_ago, end=tomorrow)
     elif stock_area=="USstock":
-        data = yf.download(spilt_words[1], start=date_80_days_ago, end=today)
+        data = yf.download(spilt_words[1], start=date_110_days_ago, end=tomorrow)
 
     # 建立兩個子圖，共用X軸
     fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [3, 1]}, sharex=True)        

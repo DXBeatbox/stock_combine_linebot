@@ -14,7 +14,8 @@
           {"type": "button","style": "link","action": {"type": "postback", "label": "智邦 (2345)", "data":"gemini 2345" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "台達電 (2308)", "data":"gemini 2308" }},
           {"type": "button","style": "link","action": {"type": "postback", "label": "奇鴻 (3017)", "data":"gemini 3017" }},
-          {"type": "button","style": "link","action": {"type": "postback", "label": "雙鴻 (3324)", "data":"gemini 3324" }}
+          {"type": "button","style": "link","action": {"type": "postback", "label": "雙鴻 (3324)", "data":"gemini 3324" }},
+          {"type": "button","style": "link","action": {"type": "postback", "label": "研華 (2395)", "data":"stock 2395 ma" }}
           
         ]
       }
@@ -161,7 +162,7 @@
           {"type": "button","style": "link","action":{"type": "postback", "label": "RBNE", "data": "gemini RBNE"}},
           {"type": "button","style": "link","action":{"type": "postback", "label": "BE", "data": "gemini BE" }},
           {"type": "button","style": "link","action":{"type": "postback", "label": "BRZE", "data": "gemini BRZE" }},
-          {"type": "button","style": "link","action":{"type": "postback", "label": "FLCN", "data": "gemini FLCN" }},
+          {"type": "button","style": "link","action":{"type": "postback", "label": "FLNC", "data": "gemini FLNC" }},
           {"type": "button","style": "link","action":{"type": "postback", "label": "COST", "data": "gemini COST" }},
           {"type": "button","style": "link","action":{"type": "postback", "label": "PLUG", "data": "gemini PLUG" }}
         ]
