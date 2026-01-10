@@ -375,29 +375,29 @@ def plot_stock_chart(spilt_words):
     plt.savefig(savefig_name) # 將圖存成 png 檔
     plt.close()
 
-    reply_text = "AAA"
-    # for model_name in models:
-    #     try:
-    #         # 呼叫模型，傳入文字 + 圖片
-    #         response = client.models.generate_content(
-    #             model=model_name,
-    #             contents=[
-    #                 {"role": "user", "parts": [
-    #                     {"text": "你是冷靜果決的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n請幫我分析這張股票走勢圖\n，淺灰色的是布林通道，下面是交易量，其餘你自己看圖標"},
-    #                     {"inline_data": {
-    #                         "mime_type": "image/png",
-    #                         "data": open(savefig_name, "rb").read()
-    #                     }}
-    #                 ]}
-    #             ]
-    #         )
-    #         reply_text = response.text.replace("*","")
-    #         break  # 成功就跳出迴圈
-    #     except Exception as e:
-    #         continue  # 換下一個模型
+    reply_text = ""
+    for model_name in models:
+        try:
+            # 呼叫模型，傳入文字 + 圖片
+            response = client.models.generate_content(
+                model=model_name,
+                contents=[
+                    {"role": "user", "parts": [
+                        {"text": "你是冷靜果決的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n請幫我分析這張股票走勢圖\n，淺灰色的是布林通道，下面是交易量，其餘你自己看圖標"},
+                        {"inline_data": {
+                            "mime_type": "image/png",
+                            "data": open(savefig_name, "rb").read()
+                        }}
+                    ]}
+                ]
+            )
+            reply_text = response.text.replace("*","")
+            break  # 成功就跳出迴圈
+        except Exception as e:
+            continue  # 換下一個模型
 
-    # if reply_text=="":
-    #     reply_text = "AI 助理額度已用完"
+    if reply_text=="":
+        reply_text = "AI 助理額度已用完"
 
     # 初始化 Cloudinary
     cloudinary.config(
