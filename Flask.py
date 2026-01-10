@@ -40,6 +40,7 @@ from google import genai
 from serpapi import GoogleSearch
 
 import json
+import math
 
 app = Flask(__name__)
 
@@ -296,8 +297,11 @@ def plot_stock_chart(spilt_words):
 
     if stock_area=="TWstock":
         data = yf.download(spilt_words[1]+".TW", start=date_110_days_ago, end=tomorrow)
+        if data.empty: 
+            data = yf.download(spilt_words[1] + ".TWO", start=date_110_days_ago, end=tomorrow)
     elif stock_area=="USstock":
         data = yf.download(spilt_words[1], start=date_110_days_ago, end=tomorrow)
+
 
     # 建立兩個子圖，共用X軸
     fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [3, 1]}, sharex=True)        
@@ -327,52 +331,73 @@ def plot_stock_chart(spilt_words):
         # 畫均線圖&布林通道 為了排列所以打亂順序        
         ax1.plot(ma20, color='m', label='MA20' ,linewidth = 1, alpha=0.5) # 20日線
         ax1.plot(ma5, color='c', label='MA5' ,linewidth = 1, alpha=0.5) # 5日線
-        ax1.plot(Bollinger_Bands_Upper, label="Upper Band", color="black",linewidth = 1, alpha=0.2) # Upper
+        ax1.plot(Bollinger_Bands_Upper, label="Upper Band", color="black", linewidth = 1, alpha=0.2) # Upper
         ax1.plot(ma10, color='y', label='MA10' ,linewidth = 1, alpha=0.5) # 10日線
-        ax1.plot(Bollinger_Bands_Lower, label="Lower Band", color="black",linewidth = 1, alpha=0.2) # Lower
+        ax1.plot(Bollinger_Bands_Lower, label="Lower Band", color="black", linewidth = 1, alpha=0.2) # Lower
 
 
     # ax1.set_ylabel('收盤價 (Close)', color='blue')
     ax1.tick_params(axis='y', labelcolor='blue')
     ax1.grid(True)
-    ax1.set_xlim(0, len(ma1)-1)
+    # ax1.set_xlim(0, len(ma1)-1)
+    ax1.set_xlim(-0.2, len(ma1)-0.8)
     # 把圖例放在圖外上方 
-    ax1.legend(loc='upper right', bbox_to_anchor=(1.03, 1.2), ncol=3, frameon=False,fontsize="small")
+    ax1.legend(loc='upper right', bbox_to_anchor=(1.03, 1.2), ncol=3, frameon=False, fontsize="small")
 
-    # 繪製成交量柱狀圖
-    ax2.bar(list(range(len(data["Volume"].iloc[20:].values.flatten()))), data["Volume"].iloc[20:].values.flatten(), color='gray',width=0.7)
-    ax2.set_ylabel('Volume', color='gray')
+    # 取得成交量 
+    raw_volume = data["Volume"].iloc[20:].values.flatten()
+
+    # 找出Exponent
+    max_vol = raw_volume.max()
+    if max_vol > 0:
+        # 例如 max_vol 是 500,000,000 -> log10 是 8.69 -> exponent 是 8
+        exponent = int(math.log10(max_vol)) 
+    else:
+        exponent = 0
+
+    # 使用縮放後的數據繪製成交量柱狀圖
+    ax2.bar(list(range(len(raw_volume))), data["Volume"].iloc[20:].values.flatten(), color='gray',width=0.7)
+
+
+    # 設定 Y 軸標題，把單位帶進去 (Volume (10⁸))
+    ax2.set_ylabel(f'Volume ($10^{{{exponent}}}$)', color='gray', size="small")
+    # 強制隱藏 Y 軸自動產生的科學記號文字 (就是那個 1e8)
+    ax2.yaxis.get_offset_text().set_visible(False)
     ax2.tick_params(axis='y', labelcolor='gray')
-    ax2.get_xaxis().set_visible(False)
 
-    # 調整子圖間距和整體標題
+
+    # 調整子圖間距和整體標題 
+    fig.suptitle(spilt_words[1]+' Chart of Stock Prices and Trading Volumes', fontsize=16, y=0.9)
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    fig.suptitle(spilt_words[1]+' Chart of Stock Prices and Trading Volumes', fontsize=16)
+    fig.subplots_adjust(hspace=0.05)
 
     savefig_name = './pic/' + spilt_words[1] + '.png'
     plt.savefig(savefig_name) # 將圖存成 png 檔
     plt.close()
 
-    reply_text = ""
-    for model_name in models:
-        try:
-            # 呼叫模型，傳入文字 + 圖片
-            response = client.models.generate_content(
-                model=model_name,
-                contents=[
-                    {"role": "user", "parts": [
-                        {"text": "你是冷靜果決的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n請幫我分析這張股票走勢圖\n，淺灰色的是布林通道，下面是交易量，其餘你自己看圖標"},
-                        {"inline_data": {
-                            "mime_type": "image/png",
-                            "data": open(savefig_name, "rb").read()
-                        }}
-                    ]}
-                ]
-            )
-            reply_text = response.text.replace("*","")
-            break  # 成功就跳出迴圈
-        except Exception as e:
-            continue  # 換下一個模型
+    reply_text = "AAA"
+    # for model_name in models:
+    #     try:
+    #         # 呼叫模型，傳入文字 + 圖片
+    #         response = client.models.generate_content(
+    #             model=model_name,
+    #             contents=[
+    #                 {"role": "user", "parts": [
+    #                     {"text": "你是冷靜果決的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n請幫我分析這張股票走勢圖\n，淺灰色的是布林通道，下面是交易量，其餘你自己看圖標"},
+    #                     {"inline_data": {
+    #                         "mime_type": "image/png",
+    #                         "data": open(savefig_name, "rb").read()
+    #                     }}
+    #                 ]}
+    #             ]
+    #         )
+    #         reply_text = response.text.replace("*","")
+    #         break  # 成功就跳出迴圈
+    #     except Exception as e:
+    #         continue  # 換下一個模型
+
+    # if reply_text=="":
+    #     reply_text = "AI 助理額度已用完"
 
     # 初始化 Cloudinary
     cloudinary.config(
