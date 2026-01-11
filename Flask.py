@@ -13,6 +13,7 @@ cloudnary_cloud_name = os.getenv("CLOUDINARY_CLOUD_NMAE")
 cloudnary_api_key = os.getenv("CLOUDINARY_API_KEY")
 cloudnary_api_secret = os.getenv("CLOUDINARY_API_SERECT") 
 
+
 from flask import Flask, request, abort
 # line api
 from linebot import LineBotApi, WebhookHandler
@@ -31,7 +32,6 @@ import datetime
 import yfinance as yf 
 import matplotlib
 matplotlib.use("Agg")  # 設定為非GUI backend
-# matplotlib.rcParams["font.family"] = ["Noto Sans CJK TC"] # 設定全域中文字型
 import matplotlib.pyplot as plt
 import cloudinary
 import cloudinary.uploader
@@ -41,6 +41,8 @@ from serpapi import GoogleSearch
 
 import json
 import math
+
+from Check_usage_limit import (load_usage, check_and_update_usage, update_usage)
 
 app = Flask(__name__)
 
@@ -60,6 +62,7 @@ with open("stock_info.json", "r", encoding="utf-8") as f:
 
 # AI Model list
 models = ["gemini-3-flash-preview", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite-preview-09-2025", "gemini-2.5-flash-lite"]
+
 
 # 函式：執行 Google 搜尋
 def google_search(query):
@@ -95,8 +98,10 @@ def callback():
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
+        # 即使錯誤也回傳 200，避免 LINE 重送 
+        return 'OK', 200
 
-    return 'OK'
+    return 'OK', 200
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -108,20 +113,39 @@ def handle_message(event):
     
     line_bot_api = LineBotApi(line_token)
 
+    
+
     match spilt_words[0]:
         case "快速導覽":
             message = FlexSendMessage( alt_text="股票快訊", contents=quickTourButton ) 
             line_bot_api.reply_message(event.reply_token, message)
+            return 
         
         case "個股資訊":
             message = FlexSendMessage( alt_text="個股資訊", contents=stock_info ) 
             line_bot_api.reply_message(event.reply_token, message)
+            return 
 
         case "stock":
-            # line_bot_api.reply_message(
-            #     event.reply_token,
-            #     TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
-            # )
+            limit_check = check_and_update_usage(user_id)
+            match limit_check:
+                case "操作間隔必須大於 1 分鐘":
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=limit_check)
+                    )
+                    return 
+                case "這個月的使用次數已達上限30次":
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=limit_check)
+                    )
+                    return 
+                
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
+            )
             #繪製均線圖並回傳網址
             image_url, reply_text = plot_stock_chart(spilt_words)
 
@@ -131,27 +155,58 @@ def handle_message(event):
             )
             text_message = TextSendMessage(text=reply_text)
 
-            line_bot_api.reply_message(
-                event.reply_token,
-                [image_message, text_message]
-            )
-            # line_bot_api.push_message(user_id, image_message)
+            # line_bot_api.reply_message(
+            #     event.reply_token,
+            #     [image_message, text_message]
+            # )
+            line_bot_api.push_message(user_id, [image_message, text_message])
             plt.close()
+            
+            update_usage(user_id) # 更新紀錄
+            return
+            
     
 
         case "gemini":
+            limit_check = check_and_update_usage(user_id)
+            match limit_check:
+                case "操作間隔必須大於 1 分鐘":
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=limit_check)
+                    )
+                    return
+                case "這個月的使用次數已達上限30次":
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=limit_check)
+                    )
+                    return
+                
             response_txt = True
             text_input = spilt_words[1]
-            response = client.models.generate_content(
-                model="gemini-3-flash-preview",
-                contents=text_input
-            )
-            response = response.text.replace("*","")
+            reply_text = None
+            for model_name in models:
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=text_input
+                    )
+                    reply_text = response.text.replace("*","")
+                    break  # 成功就跳出迴圈
+                except Exception as e:
+                    continue  # 換下一個模型
+            if not reply_text:
+                reply_text = "目前所有模型都無法使用，請稍後再試或升級方案。"
+            
+            update_usage(user_id) # 更新紀錄
 
     if response_txt :
-        reply = TextSendMessage(response.text)
-        line_bot_api.reply_message(event.reply_token, reply)
+        reply = TextSendMessage(reply_text)
+        # line_bot_api.reply_message(event.reply_token, reply)
+        line_bot_api.push_message(user_id, reply)
         response_txt = False
+        return
 
 
 # 處理加入群組事件
@@ -161,6 +216,7 @@ def handle_join(event):
     # print("加入的群組 ID：", group_id)
     # 發送歡迎訊息
     line_bot_api.push_message(group_id, TextSendMessage(text='王老闆、侯老闆還有陳老闆大家好！！！'))
+    return
 
 
 @handler.add(PostbackEvent)
@@ -168,6 +224,7 @@ def handle_postback(event):
     user_id = event.source.user_id
     text_0 = event.postback.data # 例如 "stock=2330"
     # text_0 = event.message.text
+    response_txt = False
     spilt_words = text_0.split(" ")
     
     line_bot_api = LineBotApi(line_token)
@@ -178,17 +235,33 @@ def handle_postback(event):
                 original_content_url=Dr_willy_said_url,
                 preview_image_url=Dr_willy_said_url
             )
-            # line_bot_api.push_message(user_id, image_message)
-            line_bot_api.reply_message(
-                event.reply_token,
-                image_message
-            )
-
-        case "stock":
+            line_bot_api.push_message(user_id, image_message)
+            return
             # line_bot_api.reply_message(
             #     event.reply_token,
-            #     TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
+            #     image_message
             # )
+
+        case "stock":
+            limit_check = check_and_update_usage(user_id)
+            match limit_check:
+                case "操作間隔必須大於 1 分鐘":
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=limit_check)
+                    )
+                    return
+                case "這個月的使用次數已達上限30次":
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=limit_check)
+                    )
+                    return
+                
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
+            )
             #繪製均線圖並回傳網址與AI建議
             image_url, reply_text = plot_stock_chart(spilt_words)
 
@@ -198,18 +271,37 @@ def handle_postback(event):
             )
 
             text_message = TextSendMessage(text=reply_text)
-            # line_bot_api.push_message(user_id, image_message)
-            line_bot_api.reply_message(
-                event.reply_token,
-                [image_message, text_message]
-            )
-            plt.close()
-
-        case "gemini":
+            
             # line_bot_api.reply_message(
             #     event.reply_token,
-            #     TextSendMessage(text=f"請稍後喔~ 小幫手還在打字中，{spilt_words[1]} 資訊好多，麻煩耐心等候 :D")
+            #     [image_message, text_message]
             # )
+            line_bot_api.push_message(user_id, [image_message, text_message])
+            plt.close()
+            update_usage(user_id) # 更新紀錄
+            return
+            
+
+        case "gemini":
+            limit_check = check_and_update_usage(user_id)
+            match limit_check:
+                case "操作間隔必須大於 1 分鐘":
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=limit_check)
+                    )
+                    return
+                case "這個月的使用次數已達上限30次":
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=limit_check)
+                    )
+                    return
+                
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=f"請稍後喔~ 小幫手還在打字中，{spilt_words[1]} 資訊好多，麻煩耐心等候 :D")
+            )
             text_buf = spilt_words[1]
             stock_area = classify_stock_symbol(spilt_words[1])
 
@@ -244,11 +336,13 @@ def handle_postback(event):
             if not reply_text:
                 reply_text = "目前所有模型都無法使用，請稍後再試或升級方案。"
 
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=reply_text)
-            )
-            # line_bot_api.push_message( to=user_id,messages=[TextSendMessage(text=reply_text)] )
+            # line_bot_api.reply_message(
+            #     event.reply_token,
+            #     TextSendMessage(text=reply_text)
+            # )
+            line_bot_api.push_message( to=user_id,messages=[TextSendMessage(text=reply_text)] )
+            update_usage(user_id) # 更新紀錄
+            return
 
 
 def auto_update_WebhookURL(url_add_Callback):
@@ -415,6 +509,9 @@ def plot_stock_chart(spilt_words):
 # 啟動 Flask Server
 if __name__ == "__main__":
     port_value = 5000
+
+    # 讀取使用限制表
+    load_usage()
 
     conf.get_default().auth_token = ngrok_token
     # 啟動 ngrok 隧道，綁定到 Flask 的 port
