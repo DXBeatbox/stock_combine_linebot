@@ -275,7 +275,7 @@ def handle_postback(event):
             # line_bot_api.reply_message(
             #     event.reply_token,
             #     [image_message, text_message]
-            # )
+            # ) 
             line_bot_api.push_message(user_id, [image_message, text_message])
             plt.close()
             update_usage(user_id) # 更新紀錄
