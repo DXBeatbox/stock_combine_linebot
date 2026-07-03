@@ -7,7 +7,7 @@ load_dotenv()  # 讀取 .env 檔案
 DEVELOPER_ID = os.getenv("DEVELOPER_ID")  # 開發者 ID
 
 USAGE_FILE = "./user_usage.txt"
-MAX_USAGE = 3
+MAX_USAGE = 30
 
 # 初始化檔案（如果不存在就自動生成）
 def init_usage_file():

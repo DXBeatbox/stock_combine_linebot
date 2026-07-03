@@ -384,8 +384,8 @@ def classify_stock_symbol(symbol: str) -> str:
 def plot_stock_chart(spilt_words):
     # Get current timing
     today = datetime.date.today()
-
-    date_110_days_ago = today - datetime.timedelta(days=110)
+    total_days = 220
+    date_110_days_ago = today - datetime.timedelta(days=total_days)
     tomorrow = today + datetime.timedelta(days=1)
     stock_area = classify_stock_symbol(spilt_words[1])
 
@@ -421,6 +421,27 @@ def plot_stock_chart(spilt_words):
         data["Lower"] = data["MA20"] - (2 * data["STD20"])
         Bollinger_Bands_Upper = data["Upper"].iloc[20:].values.flatten()
         Bollinger_Bands_Lower = data["Lower"].iloc[20:].values.flatten()
+
+        # 計算 MA5 斜率（簡單差值）                                 
+        ma5_slope = ma5[-1] - ma5[-2]                               
+        if ma5_slope > 0:                                           
+            slope_label = f"MA5 ↑ {ma5_slope:.2f}"                  
+            slope_color = "red"                                     
+        elif ma5_slope < 0:                                         
+            slope_label = f"MA5 ↓ {ma5_slope:.2f}"                  
+            slope_color = "green"                                   
+        else:                                                       
+            slope_label = f"MA5 → {ma5_slope:.2f}"                  
+            slope_color = "gray"                                    
+        ax1.annotate(                                               
+            slope_label,                                            
+            xy=(len(ma5)-1, ma5[-1]),                               
+            xytext=(-60, 10),                                       
+            textcoords='offset points',                             
+            fontsize=9,                                             
+            color=slope_color,                                      
+            fontweight='bold'                                       
+        )       
 
         # 畫均線圖&布林通道 為了排列所以打亂順序        
         ax1.plot(ma20, color='m', label='MA20' ,linewidth = 1, alpha=0.5) # 20日線
