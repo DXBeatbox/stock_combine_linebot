@@ -99,8 +99,9 @@ def callback():
     except InvalidSignatureError:
         abort(400)
         # 即使錯誤也回傳 200，避免 LINE 重送 
-        return 'OK', 200
-
+        # return 'OK', 200
+    except Exception as e:
+        print("Handler error:", e)  # 印 log 但不讓 Flask 回 500
     return 'OK', 200
 
 
@@ -258,8 +259,12 @@ def handle_postback(event):
                     )
                     return
                 
-            line_bot_api.reply_message(
-                event.reply_token,
+            # line_bot_api.reply_message(
+            #     event.reply_token,
+            #     TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
+            # )
+            line_bot_api.push_message(
+                user_id,
                 TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
             )
             #繪製均線圖並回傳網址與AI建議
@@ -384,7 +389,8 @@ def classify_stock_symbol(symbol: str) -> str:
 def plot_stock_chart(spilt_words):
     # Get current timing
     today = datetime.date.today()
-    total_days = 220
+    # total_days = 220
+    total_days = 300
     date_110_days_ago = today - datetime.timedelta(days=total_days)
     tomorrow = today + datetime.timedelta(days=1)
     stock_area = classify_stock_symbol(spilt_words[1])
@@ -422,26 +428,18 @@ def plot_stock_chart(spilt_words):
         Bollinger_Bands_Upper = data["Upper"].iloc[20:].values.flatten()
         Bollinger_Bands_Lower = data["Lower"].iloc[20:].values.flatten()
 
-        # 計算 MA5 斜率（簡單差值）                                 
-        ma5_slope = ma5[-1] - ma5[-2]                               
-        if ma5_slope > 0:                                           
-            slope_label = f"MA5 ↑ {ma5_slope:.2f}"                  
-            slope_color = "red"                                     
-        elif ma5_slope < 0:                                         
-            slope_label = f"MA5 ↓ {ma5_slope:.2f}"                  
-            slope_color = "green"                                   
-        else:                                                       
-            slope_label = f"MA5 → {ma5_slope:.2f}"                  
-            slope_color = "gray"                                    
-        ax1.annotate(                                               
-            slope_label,                                            
-            xy=(len(ma5)-1, ma5[-1]),                               
-            xytext=(-60, 10),                                       
-            textcoords='offset points',                             
-            fontsize=9,                                             
-            color=slope_color,                                      
-            fontweight='bold'                                       
-        )       
+        # 計算每日 MA5 斜率（簡單差值），畫在右側 Y 軸
+        # ma5_daily_slope = np.concatenate([[0], np.diff(ma5)]) 
+        # colors_slope = ['red' if v > 0 else 'green' for v in ma5_daily_slope]
+        # 計算每日 MA5 加速度
+        ma5_accel = np.concatenate([[0, 0], np.diff(ma5, n=2)])       
+        colors_accel = ['red' if v > 0 else 'green' for v in ma5_accel]
+        ax1_twin = ax1.twinx()
+        # ax1_twin.bar(range(len(ma5_daily_slope)), ma5_daily_slope, color=colors_slope, width=0.7, alpha=0.2)
+        ax1_twin.bar(range(len(ma5_accel)), ma5_accel, color=colors_accel, width=0.7, alpha=0.2)
+        ax1_twin.axhline(0, color='gray', linewidth=0.5, linestyle='--')
+        ax1_twin.set_ylabel('MA5 Slope', color='gray', size='small')
+        ax1_twin.tick_params(axis='y', right=False, labelright=False)
 
         # 畫均線圖&布林通道 為了排列所以打亂順序        
         ax1.plot(ma20, color='m', label='MA20' ,linewidth = 1, alpha=0.5) # 20日線
