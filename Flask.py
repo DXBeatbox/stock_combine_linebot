@@ -403,17 +403,14 @@ def plot_stock_chart(spilt_words):
         Bollinger_Bands_Upper = data["Upper"].iloc[20:].values.flatten()
         Bollinger_Bands_Lower = data["Lower"].iloc[20:].values.flatten()
 
-        # 計算每日 MA5 斜率（簡單差值），畫在右側 Y 軸
-        # ma5_daily_slope = np.concatenate([[0], np.diff(ma5)]) 
-        # colors_slope = ['red' if v > 0 else 'green' for v in ma5_daily_slope]
-        # 計算每日 MA5 加速度
-        ma5_accel = np.concatenate([[0, 0], np.diff(ma5, n=2)])       
-        colors_accel = ['red' if v > 0 else 'green' for v in ma5_accel]
+        # 計算每日 MA5 加速度（二階差值，對齊當天）
+        ma5_slope = np.concatenate([[0], np.diff(ma5)])
+        ma5_accel = np.concatenate([[0], np.diff(ma5_slope)])
         ax1_twin = ax1.twinx()
-        # ax1_twin.bar(range(len(ma5_daily_slope)), ma5_daily_slope, color=colors_slope, width=0.7, alpha=0.2)
-        ax1_twin.bar(range(len(ma5_accel)), ma5_accel, color=colors_accel, width=0.7, alpha=0.2)
+        colors_accel = ['red' if v > 0 else 'green' for v in ma5_accel]
+        ax1_twin.bar(range(len(ma5_accel)), ma5_accel, color=colors_accel, width=0.7, alpha=0.2, linewidth=0)
         ax1_twin.axhline(0, color='gray', linewidth=0.5, linestyle='--')
-        ax1_twin.set_ylabel('MA5 Slope', color='gray', size='small')
+        ax1_twin.set_ylabel('MA5 Accel', color='gray', size='small')
         ax1_twin.tick_params(axis='y', right=False, labelright=False)
 
         # 畫均線圖&布林通道 為了排列所以打亂順序        
@@ -444,7 +441,16 @@ def plot_stock_chart(spilt_words):
         exponent = 0
 
     # 使用縮放後的數據繪製成交量柱狀圖
-    ax2.bar(list(range(len(raw_volume))), data["Volume"].iloc[20:].values.flatten(), color='gray',width=0.7)
+    ax2.bar(list(range(len(raw_volume))), data["Volume"].iloc[20:].values.flatten(), color='gray', width=0.7, linewidth=0)
+
+    if len(spilt_words)==3 and spilt_words[2]=="ma":
+        data["VMA5"] = data["Volume"].rolling(window=5).mean()
+        data["VMA10"] = data["Volume"].rolling(window=10).mean()
+        vma5 = data["VMA5"].iloc[20:].values.flatten()
+        vma10 = data["VMA10"].iloc[20:].values.flatten()
+        ax2.plot(vma5, color='c', linewidth=1, alpha=0.8, label='Vol MA5')
+        ax2.plot(vma10, color='y', linewidth=1, alpha=0.8, label='Vol MA10')
+        ax2.legend(loc='upper right', fontsize='small', frameon=False)
 
 
     # 設定 Y 軸標題，把單位帶進去 (Volume (10⁸))
@@ -460,7 +466,7 @@ def plot_stock_chart(spilt_words):
     fig.subplots_adjust(hspace=0.05)
 
     savefig_name = './pic/' + spilt_words[1] + '.png'
-    plt.savefig(savefig_name) # 將圖存成 png 檔
+    plt.savefig(savefig_name, dpi=180) # 將圖存成 png 檔
     plt.close()
 
     reply_text = ""
