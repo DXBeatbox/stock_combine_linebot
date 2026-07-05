@@ -378,89 +378,84 @@ def plot_stock_chart(spilt_words):
         data = yf.download(spilt_words[1], start=date_110_days_ago, end=tomorrow)
 
 
-    # 建立兩個子圖，共用X軸
-    fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [3, 1]}, sharex=True)        
+    has_ma = len(spilt_words)==3 and spilt_words[2]=="ma"
+
+    # 建立子圖，ma 模式多一個斜率子圖
+    if has_ma:
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, gridspec_kw={'height_ratios': [3, 1, 1]}, sharex=True)
+        ax_vol = ax3
+    else:
+        fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [3, 1]}, sharex=True)
+        ax_vol = ax2
 
     # 繪製收盤價折線圖
     ma1 = data["Close"].iloc[20:].values.flatten()
     ax1.plot(ma1, color='blue', label='Closing price')
 
-    if len(spilt_words)==3 and spilt_words[2]=="ma":       
+    if has_ma:
         # 計算均線資料
         data["MA5"] = data["Close"].rolling(window=5).mean()
         data["MA10"] = data["Close"].rolling(window=10).mean()
         data["MA20"] = data["Close"].rolling(window=20).mean()
 
-        # 三條移動平均線陣列
         ma5 = data["MA5"].iloc[20:].values.flatten()
         ma10 = data["MA10"].iloc[20:].values.flatten()
         ma20 = data["MA20"].iloc[20:].values.flatten()
 
-        # 計算布林通道 
-        data["STD20"] = data["Close"].rolling(window=20).std() 
-        data["Upper"] = data["MA20"] + (2 * data["STD20"]) 
+        # 計算布林通道
+        data["STD20"] = data["Close"].rolling(window=20).std()
+        data["Upper"] = data["MA20"] + (2 * data["STD20"])
         data["Lower"] = data["MA20"] - (2 * data["STD20"])
         Bollinger_Bands_Upper = data["Upper"].iloc[20:].values.flatten()
         Bollinger_Bands_Lower = data["Lower"].iloc[20:].values.flatten()
 
-        # 計算每日 MA5 加速度（二階差值，對齊當天）
+        # 畫均線圖&布林通道
+        ax1.plot(ma20, color='m', label='MA20', linewidth=1, alpha=0.5)
+        ax1.plot(ma5, color='c', label='MA5', linewidth=1, alpha=0.5)
+        ax1.plot(Bollinger_Bands_Upper, label="Upper Band", color="black", linewidth=1, alpha=0.2)
+        ax1.plot(ma10, color='y', label='MA10', linewidth=1, alpha=0.5)
+        ax1.plot(Bollinger_Bands_Lower, label="Lower Band", color="black", linewidth=1, alpha=0.2)
+
+        # 計算 MA5 斜率，畫在 ax2
         ma5_slope = np.concatenate([[0], np.diff(ma5)])
-        ma5_accel = np.concatenate([[0], np.diff(ma5_slope)])
-        ax1_twin = ax1.twinx()
-        colors_accel = ['red' if v > 0 else 'green' for v in ma5_accel]
-        ax1_twin.bar(range(len(ma5_accel)), ma5_accel, color=colors_accel, width=0.7, alpha=0.2, linewidth=0)
-        ax1_twin.axhline(0, color='gray', linewidth=0.5, linestyle='--')
-        ax1_twin.set_ylabel('MA5 Accel', color='gray', size='small')
-        ax1_twin.tick_params(axis='y', right=False, labelright=False)
+        colors_slope = ['red' if v > 0 else 'green' for v in ma5_slope]
+        ax2.bar(range(len(ma5_slope)), ma5_slope, color=colors_slope, width=0.7, alpha=0.6, linewidth=0)
+        ax2.axhline(0, color='gray', linewidth=0.5, linestyle='--')
+        ax2.set_ylabel('MA5 Slope', color='gray', size='small')
+        ax2.tick_params(axis='y', labelcolor='gray')
 
-        # 畫均線圖&布林通道 為了排列所以打亂順序        
-        ax1.plot(ma20, color='m', label='MA20' ,linewidth = 1, alpha=0.5) # 20日線
-        ax1.plot(ma5, color='c', label='MA5' ,linewidth = 1, alpha=0.5) # 5日線
-        ax1.plot(Bollinger_Bands_Upper, label="Upper Band", color="black", linewidth = 1, alpha=0.2) # Upper
-        ax1.plot(ma10, color='y', label='MA10' ,linewidth = 1, alpha=0.5) # 10日線
-        ax1.plot(Bollinger_Bands_Lower, label="Lower Band", color="black", linewidth = 1, alpha=0.2) # Lower
-
-
-    # ax1.set_ylabel('收盤價 (Close)', color='blue')
     ax1.tick_params(axis='y', labelcolor='blue')
     ax1.grid(True)
-    # ax1.set_xlim(0, len(ma1)-1)
-    ax1.set_xlim(-0.2, len(ma1)-0.8)
-    # 把圖例放在圖外上方 
+    ax1.set_xlim(-0.5, len(ma1)-0.5)
     ax1.legend(loc='upper right', bbox_to_anchor=(1.03, 1.2), ncol=3, frameon=False, fontsize="small")
 
-    # 取得成交量 
+    # 取得成交量
     raw_volume = data["Volume"].iloc[20:].values.flatten()
 
     # 找出Exponent
     max_vol = raw_volume.max()
     if max_vol > 0:
-        # 例如 max_vol 是 500,000,000 -> log10 是 8.69 -> exponent 是 8
-        exponent = int(math.log10(max_vol)) 
+        exponent = int(math.log10(max_vol))
     else:
         exponent = 0
 
-    # 使用縮放後的數據繪製成交量柱狀圖
-    ax2.bar(list(range(len(raw_volume))), data["Volume"].iloc[20:].values.flatten(), color='gray', width=0.7, linewidth=0)
+    # 成交量柱狀圖
+    ax_vol.bar(list(range(len(raw_volume))), raw_volume, color='gray', width=0.7, linewidth=0)
 
-    if len(spilt_words)==3 and spilt_words[2]=="ma":
+    if has_ma:
         data["VMA5"] = data["Volume"].rolling(window=5).mean()
         data["VMA10"] = data["Volume"].rolling(window=10).mean()
         vma5 = data["VMA5"].iloc[20:].values.flatten()
         vma10 = data["VMA10"].iloc[20:].values.flatten()
-        ax2.plot(vma5, color='c', linewidth=1, alpha=0.8, label='Vol MA5')
-        ax2.plot(vma10, color='y', linewidth=1, alpha=0.8, label='Vol MA10')
-        ax2.legend(loc='upper right', fontsize='small', frameon=False)
+        ax_vol.plot(vma5, color='c', linewidth=1, alpha=0.8, label='Vol MA5')
+        ax_vol.plot(vma10, color='y', linewidth=1, alpha=0.8, label='Vol MA10')
+        ax_vol.legend(loc='upper right', fontsize='small', frameon=False)
 
+    ax_vol.set_ylabel(f'Volume ($10^{{{exponent}}}$)', color='gray', size="small")
+    ax_vol.yaxis.get_offset_text().set_visible(False)
+    ax_vol.tick_params(axis='y', labelcolor='gray')
 
-    # 設定 Y 軸標題，把單位帶進去 (Volume (10⁸))
-    ax2.set_ylabel(f'Volume ($10^{{{exponent}}}$)', color='gray', size="small")
-    # 強制隱藏 Y 軸自動產生的科學記號文字 (就是那個 1e8)
-    ax2.yaxis.get_offset_text().set_visible(False)
-    ax2.tick_params(axis='y', labelcolor='gray')
-
-
-    # 調整子圖間距和整體標題 
+    # 調整子圖間距和整體標題
     fig.suptitle(spilt_words[1]+' Chart of Stock Prices and Trading Volumes', fontsize=16, y=0.9)
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     fig.subplots_adjust(hspace=0.05)
