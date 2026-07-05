@@ -41,6 +41,7 @@ from serpapi import GoogleSearch
 
 import json
 import math
+import threading
 
 from Check_usage_limit import (load_usage, check_and_update_usage, update_usage)
 
@@ -147,23 +148,16 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
             )
-            #繪製均線圖並回傳網址
-            image_url, reply_text = plot_stock_chart(spilt_words)
-
-            image_message = ImageSendMessage(
-                original_content_url=image_url,
-                preview_image_url=image_url
-            )
-            text_message = TextSendMessage(text=reply_text)
-
-            # line_bot_api.reply_message(
-            #     event.reply_token,
-            #     [image_message, text_message]
-            # )
-            line_bot_api.push_message(user_id, [image_message, text_message])
-            plt.close()
-            
-            update_usage(user_id) # 更新紀錄
+            def process_stock_message(uid, words):
+                image_url, reply_text = plot_stock_chart(words)
+                image_message = ImageSendMessage(
+                    original_content_url=image_url,
+                    preview_image_url=image_url
+                )
+                line_bot_api.push_message(uid, [image_message, TextSendMessage(text=reply_text)])
+                plt.close()
+                update_usage(uid)
+            threading.Thread(target=process_stock_message, args=(user_id, spilt_words)).start()
             return
             
     
@@ -259,31 +253,20 @@ def handle_postback(event):
                     )
                     return
                 
-            # line_bot_api.reply_message(
-            #     event.reply_token,
-            #     TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
-            # )
             line_bot_api.push_message(
                 user_id,
                 TextSendMessage(text=f"已收到查詢 {spilt_words[1]}，正在產生圖表，請稍候...")
             )
-            #繪製均線圖並回傳網址與AI建議
-            image_url, reply_text = plot_stock_chart(spilt_words)
-
-            image_message = ImageSendMessage(
-                original_content_url=image_url,
-                preview_image_url=image_url
-            )
-
-            text_message = TextSendMessage(text=reply_text)
-            
-            # line_bot_api.reply_message(
-            #     event.reply_token,
-            #     [image_message, text_message]
-            # ) 
-            line_bot_api.push_message(user_id, [image_message, text_message])
-            plt.close()
-            update_usage(user_id) # 更新紀錄
+            def process_stock_postback(uid, words):
+                image_url, reply_text = plot_stock_chart(words)
+                image_message = ImageSendMessage(
+                    original_content_url=image_url,
+                    preview_image_url=image_url
+                )
+                line_bot_api.push_message(uid, [image_message, TextSendMessage(text=reply_text)])
+                plt.close()
+                update_usage(uid)
+            threading.Thread(target=process_stock_postback, args=(user_id, spilt_words)).start()
             return
             
 
@@ -303,50 +286,42 @@ def handle_postback(event):
                     )
                     return
                 
-            line_bot_api.reply_message(
-                event.reply_token,
+            line_bot_api.push_message(
+                user_id,
                 TextSendMessage(text=f"請稍後喔~ 小幫手還在打字中，{spilt_words[1]} 資訊好多，麻煩耐心等候 :D")
             )
-            text_buf = spilt_words[1]
-            stock_area = classify_stock_symbol(spilt_words[1])
-
-            
-            if stock_area=="TWstock":
-                search_text = "台股代號 " + text_buf + " 做什麼的"
-                search_results = google_search(search_text)
-                # 建立一個包含搜尋結果的提示（Prompt）
-                full_prompt = (
-                    f"以下是關於 '{search_text}' 的最新搜尋結果：\n\n"
-                    f"{search_results}\n\n"
-                    f"請根據你自己的內部資訊以及搜尋的這些資訊介紹"
-                )
-
-            if stock_area=="TWstock":
-                text_input =  full_prompt + "台股代號 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
-            elif stock_area=="USstock":
-                text_input =  "請使用 Google 搜尋最新資料，介紹美股 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
-
-            
-            reply_text = None
-            for model_name in models:
-                try:
-                    response = client.models.generate_content(
-                        model=model_name,
-                        contents="你是冷靜果決的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n" + text_input
+            def process_gemini_postback(uid, words):
+                text_buf = words[1]
+                stock_area = classify_stock_symbol(text_buf)
+                if stock_area=="TWstock":
+                    search_text = "台股代號 " + text_buf + " 做什麼的"
+                    search_results = google_search(search_text)
+                    full_prompt = (
+                        f"以下是關於 '{search_text}' 的最新搜尋結果：\n\n"
+                        f"{search_results}\n\n"
+                        f"請根據你自己的內部資訊以及搜尋的這些資訊介紹"
                     )
-                    reply_text = response.text.replace("*","")
-                    break  # 成功就跳出迴圈
-                except Exception as e:
-                    continue  # 換下一個模型
-            if not reply_text:
-                reply_text = "目前所有模型都無法使用，請稍後再試或升級方案。"
-
-            # line_bot_api.reply_message(
-            #     event.reply_token,
-            #     TextSendMessage(text=reply_text)
-            # )
-            line_bot_api.push_message( to=user_id,messages=[TextSendMessage(text=reply_text)] )
-            update_usage(user_id) # 更新紀錄
+                    text_input = full_prompt + "台股代號 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
+                elif stock_area=="USstock":
+                    text_input = "請使用 Google 搜尋最新資料，介紹美股 " + text_buf + "請先一句話告訴我這間公司適不適合繼續投資，並說明這間公司在做什麼、主要產品、核心技術與市場定位。/n我要放上Line回復的，幫我回復成適合在Line上閱讀的形式，也不要有下面這種文字出現/n這是一份為您整理好、適合在 Line 上直接轉傳的 IonQ 公司介紹，已避開所有星號（*）並使用易讀的符號與表情："
+                else:
+                    return
+                reply_text = None
+                for model_name in models:
+                    try:
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents="你是冷靜果決的股票分析師，現在在當LINE的回覆小助理，回覆時請考慮LINE視窗大小。\n" + text_input
+                        )
+                        reply_text = response.text.replace("*","")
+                        break
+                    except Exception as e:
+                        continue
+                if not reply_text:
+                    reply_text = "目前所有模型都無法使用，請稍後再試或升級方案。"
+                line_bot_api.push_message(to=uid, messages=[TextSendMessage(text=reply_text)])
+                update_usage(uid)
+            threading.Thread(target=process_gemini_postback, args=(user_id, spilt_words)).start()
             return
 
 
